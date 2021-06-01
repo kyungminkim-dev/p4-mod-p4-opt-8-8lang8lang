@@ -1,0 +1,9 @@
+# OS or Editor folders
+.cache
+.idea
+
+# Numerous always-ignore extensions
+*.diff
+*.err
+*.log
+*.zip
