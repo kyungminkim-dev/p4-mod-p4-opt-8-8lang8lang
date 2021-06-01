@@ -1,2 +1,5 @@
-# p4-mod-p4-opt-8-8lang8lang
-p4-mod-p4-opt-8-8lang8lang created by GitHub Classroom
+# p4-model-optimization
+
+김경민, 김광호, 김지윤, 문희철, 송낙윤
+
+Optimize ML model by AutoML & Tensor Decomposition
