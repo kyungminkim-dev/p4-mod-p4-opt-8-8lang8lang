@@ -18,3 +18,5 @@ backbone:
         [1, GlobalAvgPool, []],
         [1, Conv, [9, 1, 1, null, 1, null]]
     ]
+
+# delete one of MBConv from effientb0
