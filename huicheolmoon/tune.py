@@ -17,19 +17,21 @@ from train import train
 
 
 
-MODEL_CONFIG = read_yaml(cfg="configs/model/effinetb0.yaml")
+MODEL_CONFIG = read_yaml(cfg="configs/model/effinetb1.yaml")
 DATA_CONFIG = read_yaml(cfg="configs/data/taco.yaml")
 
 def search_hyperparam(trial: optuna.trial.Trial) -> Dict[str, Any]:
     """Search hyperparam from user-specified search space."""
-    epochs = trial.suggest_int("epochs", low=200, high=500, step=150)
-    img_size = trial.suggest_int("img_size", low=56, high=112, step=28)
-    n_select = trial.suggest_int("n_select", low=1, high=2, step=1)
+    # epochs = trial.suggest_int("epochs", low=400, high=600, step=100)
+    img_size = trial.suggest_int("img_size", low=42, high=98, step=14)
+    # n_select = trial.suggest_int("n_select", low=1, high=2, step=1)
     batch_size = trial.suggest_int("batch_size", low=32, high=128, step=32)
+    
+    # "EPOCHS": epochs,
+    #"n_select": n_select,
+    
     return {
-        "EPOCHS": epochs,
         "IMG_SIZE": img_size,
-        "n_select": n_select,
         "BATCH_SIZE": batch_size
     }
 
@@ -406,9 +408,9 @@ def objective(trial: optuna.trial.Trial, device) -> float:
     model_config["input_size"] = [data_config["IMG_SIZE"], data_config["IMG_SIZE"]]
 #     model_config["backbone"] = search_model(trial)
 
-    data_config["AUG_TRAIN_PARAMS"]["n_select"] = hyperparams["n_select"]
+#     data_config["AUG_TRAIN_PARAMS"]["n_select"] = hyperparams["n_select"]
     data_config["BATCH_SIZE"] = hyperparams["BATCH_SIZE"]
-    data_config["EPOCHS"] = hyperparams["EPOCHS"]
+#     data_config["EPOCHS"] = hyperparams["EPOCHS"]
     data_config["IMG_SIZE"] = hyperparams["IMG_SIZE"]
 
     log_dir = os.path.join("exp", datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
