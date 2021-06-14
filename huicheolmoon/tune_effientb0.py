@@ -22,10 +22,10 @@ DATA_CONFIG = read_yaml(cfg="configs/data/taco.yaml")
 
 def search_hyperparam(trial: optuna.trial.Trial) -> Dict[str, Any]:
     """Search hyperparam from user-specified search space."""
-    epochs = trial.suggest_int("epochs", low=50, high=200, step=50)
-    img_size = trial.suggest_categorical("img_size", [96, 112, 168, 224])
-    n_select = trial.suggest_int("n_select", low=0, high=6, step=2)
-    batch_size = trial.suggest_int("batch_size", low=16, high=64, step=16)
+    epochs = trial.suggest_int("epochs", low=200, high=500, step=150)
+    img_size = trial.suggest_int("img_size", low=56, high=112, step=28)
+    n_select = trial.suggest_int("n_select", low=1, high=2, step=1)
+    batch_size = trial.suggest_int("batch_size", low=32, high=128, step=32)
     return {
         "EPOCHS": epochs,
         "IMG_SIZE": img_size,
@@ -67,6 +67,8 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         ["Conv",
         "DWConv",
         "MBConv",
+        "InvertedResidualv2",
+        "InvertedResidualv3",
         "Pass"]
         )
     m2_args = []
@@ -90,6 +92,18 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m2_c = trial.suggest_int("m2/c", low=16, high=320, step=16)
         m2_k = trial.suggest_int("m2/k", low=3, high=5, step=2)
         m2_args = [1, m2_c, m2_stride, m2_k]
+    elif m2 == "InvertedResidualv2":
+        m2_c = trial.suggest_int("m2/v2_c", low=16, high=32, step=16)
+        m2_t = trial.suggest_int("m2/v2_t", low=1, high=4)
+        m2_args = [m2_c, m2_t, m2_stride]
+    elif m2 == "InvertedResidualv3":
+        m2_kernel = trial.suggest_int("m2/kernel_size", low=3, high=5, step=2)
+        m2_t = round(trial.suggest_float("m2/v3_t", low=1.0, high=6.0, step=0.1), 1)
+        m2_c = trial.suggest_int("m2/v3_c", low=16, high=40, step=8)
+        m2_se = trial.suggest_categorical("m2/v3_se", [0, 1])
+        m2_hs = trial.suggest_categorical("m2/v3_hs", [0, 1])
+        # k t c SE HS s
+        m2_args = [m2_kernel, m2_t, m2_c, m2_se, m2_hs, m2_stride]
     if not m2 == "Pass":
         if m2_stride == 2:
             n_stride += 1
@@ -103,6 +117,8 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         ["Conv",
         "DWConv",
         "MBConv",
+        "InvertedResidualv2",
+        "InvertedResidualv3",
         "Pass"]
         )
     m3_args = []
@@ -125,6 +141,17 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m3_c = trial.suggest_int("m3/c", low=16, high=320, step=16)
         m3_k = trial.suggest_int("m3/k", low=3, high=5, step=2)
         m3_args = [6, m3_c, m3_stride, m3_k]
+    elif m3 == "InvertedResidualv2":
+        m3_c = trial.suggest_int("m3/v2_c", low=8, high=32, step=8)
+        m3_t = trial.suggest_int("m3/v2_t", low=1, high=8)
+        m3_args = [m3_c, m3_t, m3_stride]
+    elif m3 == "InvertedResidualv3":
+        m3_kernel = trial.suggest_int("m3/kernel_size", low=3, high=5, step=2)
+        m3_t = round(trial.suggest_float("m3/v3_t", low=1.0, high=6.0, step=0.1), 1)
+        m3_c = trial.suggest_int("m3/v3_c", low=8, high=40, step=8)
+        m3_se = trial.suggest_categorical("m3/v3_se", [0, 1])
+        m3_hs = trial.suggest_categorical("m3/v3_hs", [0, 1])
+        m3_args = [m3_kernel, m3_t, m3_c, m3_se, m3_hs, m3_stride]
     if not m3 == "Pass":
         if m3_stride == 2:
             n_stride += 1
@@ -138,6 +165,8 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         ["Conv",
         "DWConv",
         "MBConv",
+        "InvertedResidualv2",
+        "InvertedResidualv3",
         "Pass"]
         )
     m4_args = []
@@ -163,6 +192,17 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m4_c = trial.suggest_int("m4/c", low=16, high=320, step=16)
         m4_k = trial.suggest_int("m4/k", low=3, high=5, step=2)
         m4_args = [6, m4_c, m4_stride, m4_k]
+    elif m4 == "InvertedResidualv2":
+        m4_c = trial.suggest_int("m4/v2_c", low=8, high=64, step=8)
+        m4_t = trial.suggest_int("m4/v2_t", low=1, high=8)
+        m4_args = [m4_c, m4_t, m4_stride]
+    elif m4 == "InvertedResidualv3":
+        m4_kernel = trial.suggest_int("m4/kernel_size", low=3, high=5, step=2)
+        m4_t = round(trial.suggest_float("m4/v3_t", low=1.0, high=6.0, step=0.1), 1)
+        m4_c = trial.suggest_int("m4/v3_c", low=8, high=80, step=8)
+        m4_se = trial.suggest_categorical("m4/v3_se", [0, 1])
+        m4_hs = trial.suggest_categorical("m4/v3_hs", [0, 1])
+        m4_args = [m4_kernel, m4_t, m4_c, m4_se, m4_hs, m4_stride]
     if not m4 == "Pass":
         if m4_stride == 2:
             n_stride += 1
@@ -176,6 +216,8 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         ["Conv",
         "DWConv",
         "MBConv",
+        "InvertedResidualv2",
+        "InvertedResidualv3",
         "Pass"]
         )
     m5_args = []
@@ -200,6 +242,19 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m5_c = trial.suggest_int("m5/c", low=16, high=320, step=16)
         m5_k = trial.suggest_int("m5/k", low=3, high=5, step=2)
         m5_args = [6, m5_c, m5_stride, m5_k]
+    elif m5 == "InvertedResidualv2":
+        m5_c = trial.suggest_int("m5/v2_c", low=16, high=128, step=16)
+        m5_t = trial.suggest_int("m5/v2_t", low=1, high=8)
+        m5_stride = trial.suggest_int("m5/stride", low=1, high=UPPER_STRIDE)
+        m5_args = [m5_c, m5_t, m5_stride]
+    elif m5 == "InvertedResidualv3":
+        m5_kernel = trial.suggest_int("m5/kernel_size", low=3, high=5, step=2)
+        m5_t = round(trial.suggest_float("m5/v3_t", low=1.0, high=6.0, step=0.1), 1)
+        m5_c = trial.suggest_int("m5/v3_c", low=16, high=80, step=16)
+        m5_se = trial.suggest_categorical("m5/v3_se", [0, 1])
+        m5_hs = trial.suggest_categorical("m5/v3_hs", [0, 1])
+        m5_stride = trial.suggest_int("m5/stride", low=1, high=UPPER_STRIDE)
+        m5_args = [m5_kernel, m5_t, m5_c, m5_se, m5_hs, m5_stride]
     if not m5 == "Pass":
         if m5_stride == 2:
             n_stride += 1
@@ -213,6 +268,8 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         ["Conv",
         "DWConv",
         "MBConv",
+        "InvertedResidualv2",
+        "InvertedResidualv3",
         "Pass"]
         )
     m6_args = []
@@ -238,6 +295,17 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m6_c = trial.suggest_int("m6/c", low=16, high=320, step=16)
         m6_k = trial.suggest_int("m6/k", low=3, high=5, step=2)
         m6_args = [6, m6_c, m6_stride, m6_k]
+    elif m6 == "InvertedResidualv2":
+        m6_c = trial.suggest_int("m6/v2_c", low=16, high=128, step=16)
+        m6_t = trial.suggest_int("m6/v2_t", low=1, high=8)
+        m6_args = [m6_c, m6_t, m6_stride]
+    elif m6 == "InvertedResidualv3":
+        m6_kernel = trial.suggest_int("m6/kernel_size", low=3, high=5, step=2)
+        m6_t = round(trial.suggest_float("m6/v3_t", low=1.0, high=6.0, step=0.1), 1)
+        m6_c = trial.suggest_int("m6/v3_c", low=16, high=160, step=16)
+        m6_se = trial.suggest_categorical("m6/v3_se", [0, 1])
+        m6_hs = trial.suggest_categorical("m6/v3_hs", [0, 1])
+        m6_args = [m6_kernel, m6_t, m6_c, m6_se, m6_hs, m6_stride]
     if not m6 == "Pass":
         if m6_stride == 2:
             n_stride += 1
@@ -251,6 +319,8 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         ["Conv",
         "DWConv",
         "MBConv",
+        "InvertedResidualv2",
+        "InvertedResidualv3",
         "Pass"]
         )
     m7_args = []
@@ -273,6 +343,17 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m7_c = trial.suggest_int("m7/c", low=16, high=320, step=16)
         m7_k = trial.suggest_int("m7/k", low=3, high=5, step=2)
         m7_args = [6, m7_c, m7_stride, m7_k]
+    elif m7 == "InvertedResidualv2":
+        m7_c = trial.suggest_int("m7/v2_c", low=16, high=160, step=16)
+        m7_t = trial.suggest_int("m7/v2_t", low=1, high=8)
+        m7_args = [m7_c, m7_t, m7_stride]
+    elif m7 == "InvertedResidualv3":
+        m7_kernel = trial.suggest_int("m7/kernel_size", low=3, high=5, step=2)
+        m7_t = round(trial.suggest_float("m7/v3_t", low=1.0, high=6.0, step=0.1), 1)
+        m7_c = trial.suggest_int("m7/v3_c", low=8, high=160, step=8)
+        m7_se = trial.suggest_categorical("m7/v3_se", [0, 1])
+        m7_hs = trial.suggest_categorical("m7/v3_hs", [0, 1])
+        m7_args = [m7_kernel, m7_t, m7_c, m7_se, m7_hs, m7_stride]
     if not m7 == "Pass":
         if m7_stride == 2:
             n_stride += 1
@@ -281,22 +362,39 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         model.append([m7_repeat, m7, m7_args])
         
     # last layer
-    last_dim = trial.suggest_int("last_dim", low=128, high=1024, step=128)
+    last_dim = trial.suggest_int("last_dim", low=128, high=512, step=128)
     # We can setup fixed structure as well
     model.append([1, "Conv", [last_dim, 1, 1]])
     model.append([1, "GlobalAvgPool", []])
-    model.append([1, "Conv", [1000, 1, 1, None, 1, None]])
+    model.append([1, "FixedConv", [last_dim, 1, 1, None, 1, None]])
 
     return model
 
-def objective(trial: optuna.trial.Trial, device) -> Tuple[float, int, float]:
-    """Optuna objective.
 
+def tuning_score(test_f1: float, macs: float) -> float:
+    f1_pivot = 0.85
+    f1_limit = 0.5
+    macs_pivot = 100000
+    
+    if test_f1 < f1_limit:
+        score_f1 = 1
+    elif f1_limit <= test_f1 < f1_pivot:
+        score_f1 = 1 - (test_f1 / f1_pivot)
+    else:
+        score_f1 = 0.5 * (1 - (test_f1 / f1_pivot))
+    score_macs = macs / macs_pivot
+    result = score_f1 + score_macs
+    
+    return result
+
+
+def objective(trial: optuna.trial.Trial, device) -> float:
+    """Optuna objective.
+    
     Args:
         trial
     Returns:
-        float: score1(e.g. accuracy)
-        int: score2(e.g. params)
+        float: tuning_score(accuracy & params)
     """
     model_config = copy.deepcopy(MODEL_CONFIG)
     data_config = copy.deepcopy(DATA_CONFIG)
@@ -304,8 +402,9 @@ def objective(trial: optuna.trial.Trial, device) -> Tuple[float, int, float]:
     # hyperparams: EPOCHS, IMG_SIZE, n_select, BATCH_SIZE
     hyperparams = search_hyperparam(trial)
 
-    model_config["input_size"] = [hyperparams["IMG_SIZE"], hyperparams["IMG_SIZE"]]
-    model_config["backbone"] = search_model(trial)
+    
+    model_config["input_size"] = [data_config["IMG_SIZE"], data_config["IMG_SIZE"]]
+#     model_config["backbone"] = search_model(trial)
 
     data_config["AUG_TRAIN_PARAMS"]["n_select"] = hyperparams["n_select"]
     data_config["BATCH_SIZE"] = hyperparams["BATCH_SIZE"]
@@ -327,7 +426,7 @@ def objective(trial: optuna.trial.Trial, device) -> Tuple[float, int, float]:
         device=device,
     )
 
-    return best_f1, macs
+    return tuning_score(test_f1, macs)
 
 
 def tune(gpu_id: int, storage: Union[str, None] = None, study_name: str = "pstage_automl"):
@@ -335,20 +434,20 @@ def tune(gpu_id: int, storage: Union[str, None] = None, study_name: str = "pstag
         device = torch.device("cpu")
     elif 0 <= gpu_id < torch.cuda.device_count():
         device = torch.device(f"cuda:{gpu_id}")
-    sampler = optuna.samplers.MOTPESampler(n_startup_trials=20)
+    sampler = optuna.samplers.TPESampler(n_startup_trials=20)
     if storage is not None:
         rdb_storage = optuna.storages.RDBStorage(url=storage)
     else:
         rdb_storage = None
 
     study = optuna.create_study(
-        directions=["maximize", "minimize"],
+        directions=["minimize"],
         storage=rdb_storage,
         study_name=study_name,
         sampler=sampler,
         load_if_exists=True
     )
-    study.optimize(lambda trial: objective(trial, device), n_trials=500)
+    study.optimize(lambda trial: objective(trial, device), n_trials=20)
 
     pruned_trials = [
         t for t in study.trials if t.state == optuna.trial.TrialState.PRUNED
