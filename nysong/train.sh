@@ -1,0 +1,1 @@
+python train.py --model /opt/ml/code/exp/1119_2021-06-12_22-13-31/model.yml

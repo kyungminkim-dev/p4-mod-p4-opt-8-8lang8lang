@@ -1,0 +1,1 @@
+python inference.py --model_config /opt/ml/code/exp/add_train_2021-06-13_11-18-57/model.yml --weight /opt/ml/code/exp/add_train_2021-06-13_11-18-57/best.pt --img_root /opt/ml/input/data/test --data_config ./configs/data/train_taco.yaml 
