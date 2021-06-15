@@ -1,10 +1,5 @@
 # boostcamp_pstage10
 
-# Docker
-```bash
-docker run -it --gpus all --ipc=host -v $PWD:/opt/ml/code -v ${dataset}:/opt/ml/data placidus36/pstage4_lightweight:v0.1 /bin/bash
-```
-
 # Run
 ## 1. train
 python train.py --model_config ${path_to_model_config} --data_config ${path_to_data_config}
